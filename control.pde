@@ -5,6 +5,7 @@ void mouseWheel(MouseEvent event) {
   float e = event.getAmount();
   currentGroup += e;
   if (currentGroup<0) currentGroup = 0;
+  if (currentGroup>maxGroups-1) currentGroup = 7;
   println(str(currentGroup));
 }
 
