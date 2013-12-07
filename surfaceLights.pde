@@ -46,8 +46,8 @@ import netP5.*;
 
 OscP5 oscP5;
 // set screen size manually
-float screenSizeX = 1026.0;
-float screenSizeY = 770.0;      
+float screenSizeX = 1024.0;
+float screenSizeY = 768.0;      
 // contains ALL the vertices
 ArrayList<PVector> vertices;
 // contains informations of what to do with the vertices
@@ -112,6 +112,14 @@ void setup() {
   shaders.add(loadShader("spaceHipster.glsl"));
   shaders.add(loadShader("stemCells.glsl"));
   shaders.add(loadShader("summerTime.glsl"));
+  shaders.add(loadShader("waterColor.glsl"));
+  //shaders.add(loadShader("psySnow.glsl"));
+  shaders.add(loadShader("blackWhiteSwirl.glsl"));
+  //shaders.add(loadShader("slightBlue.glsl"));
+  shaders.add(loadShader("blackWhiteNinetys.glsl"));
+  //shaders.add(loadShader("blackWhiteFractal.glsl"));
+
+
   // set resolution of all shaders
   for (int shader = 0;shader < shaders.size();shader++) {
     shaders.get(shader).set("resolution", float(width), float(height));
