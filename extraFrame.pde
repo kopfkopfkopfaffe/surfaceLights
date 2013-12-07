@@ -25,14 +25,21 @@ public class ControlFrame extends PApplet {
   float averageY = 0.0;
   Knob [] groupKnobsLeft = new Knob[maxGroups];
   Knob [] groupKnobsRight = new Knob[maxGroups];
-
+  Button [] latchButtons = new Button[maxGroups];
+  Button latchMaster;
+  Toggle [] blackOutButtons = new Toggle[maxGroups];
+  // Toggle blackOutMaster = new Toggle;
+  // store all blackOutValues for recover after general blackOut
+  boolean blackOutStorage[] = {
+    false, false, false, false, false, false, false, false
+  }; 
   public void setup() {
     // set up gui
     size(w, h);
     cp5 = new ControlP5(this);
     cp5.setControlFont(font, 18);
     for (int i = 0; i<maxGroups;i++) {
-      groupKnobsLeft[i]=cp5.addKnob("left_"+str(i));
+      groupKnobsLeft[i]=cp5.addKnob("lf"+str(i));
       groupKnobsLeft[i].setRange(0.0, numberOfEffects);
       groupKnobsLeft[i].setValue(0);
       groupKnobsLeft[i].setNumberOfTickMarks(int(numberOfEffects)); 
@@ -48,7 +55,7 @@ public class ControlFrame extends PApplet {
     }
 
     for (int i = 0; i<maxGroups;i++) {
-      groupKnobsRight[i]=cp5.addKnob(str(i));
+      groupKnobsRight[i]=cp5.addKnob("rt"+str(i));
       groupKnobsRight[i].setRange(0.0, numberOfEffects);
       groupKnobsRight[i].setValue(0);
       groupKnobsRight[i].setNumberOfTickMarks(int(numberOfEffects)); 
@@ -63,22 +70,45 @@ public class ControlFrame extends PApplet {
       groupKnobsRight[i].setScrollSensitivity(.5);
     }
 
+    for (int i = 0; i<maxGroups;i++) {
+      latchButtons[i]=cp5.addButton("la"+str(i));
+      latchButtons[i].setPosition(130, (screenSizeY*scaler)+10+i*45);
+      latchButtons[i].setSize(40, 40);
+      latchButtons[i].setCaptionLabel("   L");
+    }
+
+    for (int i = 0; i<maxGroups;i++) {
+      blackOutButtons[i]=cp5.addToggle("bo"+str(i));
+      blackOutButtons[i].setPosition(175, (screenSizeY*scaler)+10+i*45);
+      blackOutButtons[i].setSize(40, 40);
+      blackOutButtons[i].setCaptionLabel("");
+    }
+
+    latchMaster = cp5.addButton("LM");
+    latchMaster.setPosition(240, (screenSizeY*scaler)+10);
+    latchMaster.setSize(80, 40);  
+    latchMaster.setCaptionLabel(" LATCH");
+
     //smooth();
     colorMode(HSB, 100);
   }
 
   public void draw() {
     // highlight groups by mouse hover
-    if (mouseX > 1 && mouseX < 150) {
+    if (mouseX > 1 && mouseX < 220) {
       selectedGroup = int(floor((mouseY-screenSizeY*scaler)-10)/45.0);
-      println(selectedGroup);
     }
     else {
       selectedGroup = -1;
     }
     // apply knob settings to groups
     for (int i = 0; i<maxGroups;i++) {
-      groupMap[i]=int(groupKnobsLeft[i].getValue());
+      if (blackOutButtons[i].getState()) {
+        groupMap[i]=int(groupKnobsLeft[i].getValue());
+      }
+      else {
+        groupMap[i] = int(numberOfEffects)+2;
+      }
     }
     background(0);
     // render little shape preview
@@ -125,6 +155,7 @@ public class ControlFrame extends PApplet {
     line(globalmouseX*scaler, globalmouseY*scaler+2, globalmouseX*scaler, globalmouseY*scaler+10);
     stroke(100, 0, 100);
     line(0, screenSizeY*scaler, 500, screenSizeY*scaler);
+    line(225, screenSizeY*scaler, 225, 800);
   }
 
   private ControlFrame() {
@@ -136,14 +167,29 @@ public class ControlFrame extends PApplet {
     h = theHeight;
   }
 
+  public void controlEvent(ControlEvent theEvent) {
+    String sourceID = theEvent.getController().getName().substring(0, 2);
+    int sourceNumber = int(theEvent.getController().getName().substring(2));
+    if (sourceID.equals("la")) {
+      groupKnobsLeft[sourceNumber].setValue(groupKnobsRight[sourceNumber].getValue());
+    }
+    else if (sourceID.equals("LM")) {
+      for (int i = 0; i<maxGroups;i++) {
+        groupKnobsLeft[i].setValue(groupKnobsRight[i].getValue());
+      }
+      }
+      else if (sourceID.equals("bo")) {
+        blackOutStorage[sourceNumber] = blackOutButtons[sourceNumber].getState();
+      }
+    }
 
-  public ControlP5 control() {
-    return cp5;
+    public ControlP5 control() {
+      return cp5;
+    }
+
+
+    ControlP5 cp5;
+
+    Object parent;
   }
-
-
-  ControlP5 cp5;
-
-  Object parent;
-}
 
