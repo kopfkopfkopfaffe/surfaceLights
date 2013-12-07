@@ -101,6 +101,7 @@ PFont font;
 int col;
 int counter;
 float numberOfEffects;
+boolean numberKeys[]={false,false,false,false,false,false,false,false,false};
 void setup() {
   oscP5 = new OscP5(this, 5555);
   background(0);

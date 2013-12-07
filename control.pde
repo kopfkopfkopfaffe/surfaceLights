@@ -79,8 +79,59 @@ void keyPressed() {
   else if (key == 'a') {
     metaInformations.get(int(selectedShape)).set(metaInformations.get(int(selectedShape)).x, selectedGroup, 0.0);
   }
+  else if (key == '1'){
+  numberKeys[key-0x31] = true;
+  }
+  else  if (key == '2'){
+  numberKeys[key-0x31] = true;
+  }
+  else  if (key == '3'){
+  numberKeys[key-0x31] = true;
+  }
+  else  if (key == '4'){
+  numberKeys[key-0x31] = true;
+  }
+  else  if (key == '5'){
+  numberKeys[key-0x31] = true;
+  }
+  else  if (key == '6'){
+  numberKeys[key-0x31] = true;
+  }
+  else  if (key == '7'){
+  numberKeys[key-0x31] = true;
+  }
+  else  if (key == '8'){
+  numberKeys[key-0x31] = true;
+  }
 }
 
+void keyReleased() {
+  if (key == '1'){
+  numberKeys[key-0x31] = false;
+  }
+  else  if (key == '2'){
+  numberKeys[key-0x31] = false;
+  }
+  else  if (key == '3'){
+  numberKeys[key-0x31] = false;
+  }
+  else  if (key == '4'){
+  numberKeys[key-0x31] = false;
+  }
+  else  if (key == '5'){
+  numberKeys[key-0x31] = false;
+  }
+  else  if (key == '6'){
+  numberKeys[key-0x31] = false;
+  }
+  else  if (key == '7'){
+  numberKeys[key-0x31] = false;
+  }
+  else  if (key == '8'){
+  numberKeys[key-0x31] = false;
+  }
+
+}
 
 void oscEvent(OscMessage mess) {
   // clock signal received, reset cooldown.

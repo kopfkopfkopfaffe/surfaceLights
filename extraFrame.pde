@@ -28,7 +28,7 @@ public class ControlFrame extends PApplet {
   Button [] latchButtons = new Button[maxGroups];
   Button latchMaster;
   Toggle [] blackOutButtons = new Toggle[maxGroups];
-  // Toggle blackOutMaster = new Toggle;
+  //Toggle blackOutMaster;
   // store all blackOutValues for recover after general blackOut
   boolean blackOutStorage[] = {
     false, false, false, false, false, false, false, false
@@ -84,11 +84,18 @@ public class ControlFrame extends PApplet {
       blackOutButtons[i].setCaptionLabel("");
     }
 
-    latchMaster = cp5.addButton("LM");
+    latchMaster = cp5.addButton("LM0");
     latchMaster.setPosition(240, (screenSizeY*scaler)+10);
     latchMaster.setSize(80, 40);  
     latchMaster.setCaptionLabel(" LATCH");
-
+    /*
+    blackOutMaster = cp5.addToggle("BM0");
+    blackOutMaster.setPosition(240+5+80, (screenSizeY*scaler)+10);
+    blackOutMaster.setSize(80, 40);  
+    blackOutMaster.setCaptionLabel("BLACKOUT");
+    blackOutMaster.setMode(ControlP5.SWITCH);
+    blackOutMaster.setValue(true);
+    */
     //smooth();
     colorMode(HSB, 100);
   }
@@ -103,7 +110,7 @@ public class ControlFrame extends PApplet {
     }
     // apply knob settings to groups
     for (int i = 0; i<maxGroups;i++) {
-      if (blackOutButtons[i].getState()) {
+      if (blackOutButtons[i].getState()|| numberKeys[i]) {
         groupMap[i]=int(groupKnobsLeft[i].getValue());
       }
       else {
@@ -170,6 +177,7 @@ public class ControlFrame extends PApplet {
   public void controlEvent(ControlEvent theEvent) {
     String sourceID = theEvent.getController().getName().substring(0, 2);
     int sourceNumber = int(theEvent.getController().getName().substring(2));
+    println("An Event!");
     if (sourceID.equals("la")) {
       groupKnobsLeft[sourceNumber].setValue(groupKnobsRight[sourceNumber].getValue());
     }
@@ -177,19 +185,37 @@ public class ControlFrame extends PApplet {
       for (int i = 0; i<maxGroups;i++) {
         groupKnobsLeft[i].setValue(groupKnobsRight[i].getValue());
       }
-      }
-      else if (sourceID.equals("bo")) {
-        blackOutStorage[sourceNumber] = blackOutButtons[sourceNumber].getState();
-      }
     }
-
-    public ControlP5 control() {
-      return cp5;
+    /*
+    else if (sourceID.equals("BM")) {
+      if (blackOutMaster.getState()) {
+        println("on again");
+        for (int i = 0; i<maxGroups;i++) {
+          blackOutButtons[i].setState(blackOutStorage[i]);
+        }
+      }
+      else {
+        for (int i = 0; i<maxGroups;i++) {
+          blackOutButtons[i].setState(false);
+        }
+      }
+    }*/
+    else if (sourceID.equals("bo")) {
+      blackOutStorage[sourceNumber] = blackOutButtons[sourceNumber].getState();
+      println(blackOutStorage);
     }
-
-
-    ControlP5 cp5;
-
-    Object parent;
+    else {
+      ;
+    }
   }
+
+  public ControlP5 control() {
+    return cp5;
+  }
+
+
+  ControlP5 cp5;
+
+  Object parent;
+}
 
