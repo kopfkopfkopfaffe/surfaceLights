@@ -2,6 +2,10 @@
 
 /* surfaceLights, 2013 KopfKopfKopfAffe
  *
+ * TODO:
+ * Function to remove shapes
+ *
+ *
  * This is how it works:
  * == Creating Shapes ==
  * You can draw shapes by defining their outer points. 
@@ -102,6 +106,7 @@ int col;
 int counter;
 float numberOfEffects;
 boolean numberKeys[]={false,false,false,false,false,false,false,false,false};
+
 void setup() {
   oscP5 = new OscP5(this, 5555);
   background(0);
@@ -142,6 +147,7 @@ void setup() {
   // lists for points and shape informations
   vertices = new ArrayList();
   metaInformations = new ArrayList();
+  loadAll();
   smooth();
   colorMode(HSB, 100);
 }
@@ -158,6 +164,7 @@ void draw() {
   // move all effects
   animateEffects();
   // show legend of all effects on the left
+  /*
   int blockSize = int((screenSizeY/(shaders.size()-1))-5);
   for (int i = 0; i<shaders.size();i ++){
     applyEffect(i);
@@ -166,6 +173,7 @@ void draw() {
     fill(100,0,100);
     text(i,5,((i+1)*blockSize+5)-5);
   }
+  */
   
   // iterate over all shapes
   tempVertexCounter = 0;

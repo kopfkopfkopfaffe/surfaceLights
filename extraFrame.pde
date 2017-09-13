@@ -19,14 +19,17 @@ ControlFrame addControlFrame(String theName, int theWidth, int theHeight) {
 public class ControlFrame extends PApplet {
   int w, h;
   int selectedGroup = -1; 
+  int selectedShape = -1;
   int mytempVertexCounter;
   float scaler = 500.0/screenSizeX;
   float averageX = 0.0;
   float averageY = 0.0;
   Knob [] groupKnobsLeft = new Knob[maxGroups];
   Knob [] groupKnobsRight = new Knob[maxGroups];
+  Knob shapeSelect;
   Button [] latchButtons = new Button[maxGroups];
   Button latchMaster;
+  Button saveAll;
   Toggle [] blackOutButtons = new Toggle[maxGroups];
   //Toggle blackOutMaster;
   // store all blackOutValues for recover after general blackOut
@@ -88,19 +91,45 @@ public class ControlFrame extends PApplet {
     latchMaster.setPosition(240, (screenSizeY*scaler)+10);
     latchMaster.setSize(80, 40);  
     latchMaster.setCaptionLabel(" LATCH");
+
+    shapeSelect = cp5.addKnob("SS0");
+
+    shapeSelect .setRange(0.0, 1.0);
+    shapeSelect .setValue(0);
+    shapeSelect .setNumberOfTickMarks(1); 
+    shapeSelect .setResolution(50);
+    shapeSelect .setPosition(300, (screenSizeY*scaler)+150);
+    shapeSelect .setRadius(40);
+    shapeSelect .snapToTickMarks(true);  
+    shapeSelect .setColorCaptionLabel(0);
+    shapeSelect .setDecimalPrecision(0);
+    shapeSelect .scrolled(3);
+    shapeSelect .setScrollSensitivity(0.01);
+    
+    saveAll = cp5.addButton("sa0");
+    saveAll.setPosition(240+5+80, (screenSizeY*scaler)+10);
+    saveAll.setSize(80, 40);
+    saveAll.setCaptionLabel("   SAVE");
+
     /*
     blackOutMaster = cp5.addToggle("BM0");
-    blackOutMaster.setPosition(240+5+80, (screenSizeY*scaler)+10);
-    blackOutMaster.setSize(80, 40);  
-    blackOutMaster.setCaptionLabel("BLACKOUT");
-    blackOutMaster.setMode(ControlP5.SWITCH);
-    blackOutMaster.setValue(true);
-    */
+     blackOutMaster.setPosition(240+5+80, (screenSizeY*scaler)+10);
+     blackOutMaster.setSize(80, 40);  
+     blackOutMaster.setCaptionLabel("BLACKOUT");
+     blackOutMaster.setMode(ControlP5.SWITCH);
+     blackOutMaster.setValue(true);
+     */
     //smooth();
     colorMode(HSB, 100);
   }
 
   public void draw() {
+    // adapt group mapping knobs to number of shapes
+    if (metaIndex>0) {
+      shapeSelect.setRange(0.0, float(metaIndex));
+      shapeSelect.setNumberOfTickMarks(metaIndex); 
+      selectedShape = int(shapeSelect.getValue());
+    }
     // highlight groups by mouse hover
     if (mouseX > 1 && mouseX < 220) {
       selectedGroup = int(floor((mouseY-screenSizeY*scaler)-10)/45.0);
@@ -128,6 +157,9 @@ public class ControlFrame extends PApplet {
       if (int(metaInformations.get(shapes).y)==selectedGroup) {
         stroke(90, 100, 100);
       }
+      else if (shapes==selectedShape) {
+        stroke(10, 100, 100);
+      }
       else {
         stroke(50, 100, 100);
       }
@@ -143,6 +175,10 @@ public class ControlFrame extends PApplet {
       if (int(metaInformations.get(shapes).y)==selectedGroup) {
         stroke(90, 100, 100);
         fill(90, 100, 100);
+      }
+      else if (shapes==selectedShape) {
+        stroke(10, 100, 100);
+        fill(10, 100, 100);
       }
       else {
         stroke(50, 100, 100);
@@ -177,7 +213,6 @@ public class ControlFrame extends PApplet {
   public void controlEvent(ControlEvent theEvent) {
     String sourceID = theEvent.getController().getName().substring(0, 2);
     int sourceNumber = int(theEvent.getController().getName().substring(2));
-    println("An Event!");
     if (sourceID.equals("la")) {
       groupKnobsLeft[sourceNumber].setValue(groupKnobsRight[sourceNumber].getValue());
     }
@@ -186,23 +221,27 @@ public class ControlFrame extends PApplet {
         groupKnobsLeft[i].setValue(groupKnobsRight[i].getValue());
       }
     }
+    
+    else if (sourceID.equals("sa")) {
+      saveAll();
+    }
+    
     /*
     else if (sourceID.equals("BM")) {
-      if (blackOutMaster.getState()) {
-        println("on again");
-        for (int i = 0; i<maxGroups;i++) {
-          blackOutButtons[i].setState(blackOutStorage[i]);
-        }
-      }
-      else {
-        for (int i = 0; i<maxGroups;i++) {
-          blackOutButtons[i].setState(false);
-        }
-      }
-    }*/
+     if (blackOutMaster.getState()) {
+     println("on again");
+     for (int i = 0; i<maxGroups;i++) {
+     blackOutButtons[i].setState(blackOutStorage[i]);
+     }
+     }
+     else {
+     for (int i = 0; i<maxGroups;i++) {
+     blackOutButtons[i].setState(false);
+     }
+     }
+     }*/
     else if (sourceID.equals("bo")) {
       blackOutStorage[sourceNumber] = blackOutButtons[sourceNumber].getState();
-      println(blackOutStorage);
     }
     else {
       ;

@@ -1,73 +1,62 @@
-
 #ifdef GL_ES
-precision mediump float;
+precision mediump float; 
 #endif
 
 uniform float time;
-uniform vec2 mouse;
 uniform vec2 resolution;
-varying vec2 surfacePosition;
 
-float map(vec3 p)
-{
-    const int MAX_ITER = 256;
-    const float BAILOUT=1.8;
-    float Power=128.0*pow(0.2 +surfacePosition.x,4.0);
-    vec3 v = p;
-    vec3 c = v;
+// Fractal Soup - @P_Malin
 
-    float r=0.0;
-    float d=1.0;
-    for(int n=0; n<=MAX_ITER; ++n)
-    {
-        r = length(v);
-        if(r>BAILOUT) break;
-
-        float theta = acos(v.z/r);
-        float phi = atan(v.y, v.x);
-        d = pow(r,Power-1.0)*Power*d+1.0;
-
-        float zr = pow(r,Power);
-        theta = theta*Power;
-        phi = phi*Power;
-        v = (vec3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta))*zr)+c;
-    }
-    return 0.5*log(r)*r/d;
+vec2 CircleInversion(vec2 vPos, vec2 vOrigin, float fRadius)
+{	
+	vec2 vOP = vPos - vOrigin;
+	return vOrigin - vOP * fRadius * fRadius / dot(vOP, vOP);
 }
 
-
-void main( void )
+float Parabola( float x, float n )
 {
-    vec2 pos = (gl_FragCoord.xy*2.0 - resolution.xy) / resolution.y;
-    vec3 camPos = vec3(
-	    1.8*sin(surfacePosition.x * 3.1415),
-	    0.9*cos(time),
-	    1.8*cos(surfacePosition.y * 3.1415)
-   	);
-    vec3 camTarget = vec3(0.0, 0.0, 0.0);
+	return pow( 4.0*x*(1.0-x), n );
+}
 
-    vec3 camDir = normalize(camTarget-camPos);
-    vec3 camUp  = normalize(vec3(0.0, 1.0, 0.0));
-    vec3 camSide = cross(camDir, camUp);
-    float focus = 1.0;
+void main(void)
+{
+	vec2 vPos = gl_FragCoord.xy / resolution.xy;
+	vPos = vPos - 0.5;
 	
-    vec3 rayDir = normalize(camSide*pos.x + camUp*pos.y + camDir*focus);
-    vec3 ray = camPos;
-    float m = 0.0;
-    float d = 0.0, total_d = 0.0;
-    const int MAX_MARCH = 256;
-    const float MAX_DISTANCE = 100.0;
-    for(int i=0; i<MAX_MARCH; ++i) {
-        d = map(ray);
-        total_d += d;
-        ray += rayDir * d;
-        m += 1.0;
-        if(d<0.001) { break; }
-        if(total_d>MAX_DISTANCE) { total_d=MAX_DISTANCE; break; }
-    }
+	vPos.x *= resolution.x / resolution.y;
+	
+	vec2 vScale = vec2(1.2);
+	vec2 vOffset = vec2( sin(time * 0.123), sin(time * 0.0567));
 
-    float c = (total_d)*0.0001;
-    vec4 result = vec4( 1.0-vec3(c, c, c) - vec3(0.029, 0.0196, 0.0168)*m*0.8, 9.0 );
-    gl_FragColor = result;
+	float l = 0.0;
+	float minl = 10000.0;
+	
+	for(int i=0; i<48; i++)
+	{
+		vPos.x = abs(vPos.x);
+		vPos = vPos * vScale + vOffset;	
+		
+		vPos = CircleInversion(vPos, vec2(0.5, 0.5), 1.0);
+		
+		l = length(vPos);
+		minl = min(l, minl);
+	}
+	
+	
+	float t = 4.1 + time * 0.025;
+	vec3 vBaseColour = normalize(vec3(sin(t * 1.890), sin(t * 1.345), sin(t * 1.123)) * 0.5 + 0.5);
+
+	//vBaseColour = vec3(1.0, 0.15, 0.05);
+	
+	float fBrightness = 15.0;
+	
+	vec3 vColour = vBaseColour * l * l * fBrightness;
+	
+	minl = Parabola(minl, 5.0);	
+	
+	vColour *= minl + 0.1;
+	
+	vColour = 1.0 - exp(-vColour);
+	gl_FragColor = vec4(vColour,1.0);
 }
 
